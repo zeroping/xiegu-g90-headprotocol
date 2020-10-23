@@ -24,7 +24,7 @@ def readPacket(ser, readtime=1):
   #should be 96 bytes in total
   return packetbytes
 
-
+ 
 def printpacket(pktbytes):
   if pktbytes:
     for idx in range(len(pktbytes)):
@@ -38,6 +38,8 @@ def printpacket(pktbytes):
     print("Pre/ATT: " + str(pktbytes[8])) # none, pre, att
     print("Mode: " + str(pktbytes[9])) # lsb, USB, CW, CWR, NFM, AM
     print("AGC: " + str(pktbytes[10])) #  AGC--, AGC-S, AGC-F, AGC-A
+    
+    #when sweeping, filters go to 650 and 4800 hz
     print("Filter low : " + str(100 + (pktbytes[13]*25))) #audio filter cut-off in hz
     print("Filter high: " + str(125 + (pktbytes[12]*25))) #audio filter cut-off in hz
     
@@ -49,8 +51,11 @@ def printpacket(pktbytes):
     print("Mic compression : " + str(True if (pktbytes[36]&0x08) else False))
     print("NB : " + str("on" if (pktbytes[36]&0x10) else "off"))
     print("Tuner enabled : " + str(True if (pktbytes[36]&0x20) else False)) 
-    print("Transmiting: " + str(True if (pktbytes[36]&0x80) else False))
     print("V/M : " + str("VFO" if (pktbytes[36]&0x40) else "MEM"))
+    print("Transmiting: " + str(True if (pktbytes[36]&0x80) else False))
+    
+    print("Tuning: " + str(True if (pktbytes[37]&0x20) else False)) #also throws transmit high
+    
     
     print("CW QSK : " + str(True if (pktbytes[38]&0x01) else False))
     print("TX disable? : " + str(False if (pktbytes[38]&0x02) else True)) #from being out of band?
@@ -71,6 +76,7 @@ def printpacket(pktbytes):
     print("Beep enable: " + str(True if (pktbytes[43]&0x08) else False)) #in setting menu
     
     print("RF Power: " + str(pktbytes[44])) # 1-20 watts
+    #power gets set to 7w when tuning
     
     print("NB level: " + str( ((pktbytes[46] & 0xF0) >> 4 )))
     print("NB width: " + str( (pktbytes[46] & 0x0F )))
@@ -91,6 +97,7 @@ def printpacket(pktbytes):
     print("CW Ratio: " + str( 2 +  0.1 * (pktbytes[61] >>4 ) ))
     
     print("SWR Threshold: " + str( ((pktbytes[82] & 0x0F ) * 0.2 ) + 1.8)) #0-9 maps to 1.8-3.6 for protection
+    #SWR threashold also gets set to 1.8 when sweeping
     print("Aux in vol: " + str( (pktbytes[83] & 0x0F ))) #0-15
     print("Aux out vol: " + str( (pktbytes[83] & 0xF0 ) >> 4)) #0-15
     
