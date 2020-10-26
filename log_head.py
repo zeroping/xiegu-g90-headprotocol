@@ -6,6 +6,9 @@ import serial
 import time
 #import datetime
 
+import xiegug90head
+#from construct import Int16ub, Int16ul, Int16bl, Struct
+#from construct import *
 
 def readPacket(ser, readtime=1):
   #looks for a 0x55 followed by a 0xaa to get synced, then expects 94 more bytes afterwards
@@ -77,10 +80,10 @@ def printpacket(pktbytes):
     
     print("RF Power: " + str(pktbytes[44])) # 1-20 watts
     #power gets set to 7w when tuning
-    
+    print("Sql level: " + str(pktbytes[45])) # 0-9
     print("NB level: " + str( ((pktbytes[46] & 0xF0) >> 4 )))
     print("NB width: " + str( (pktbytes[46] & 0x0F )))
-    print("Sql level: " + str(pktbytes[45])) # 0-9
+
     
     print("Volume: " + str(pktbytes[48])) # 0-28
     print("Mic Gain: " + str(pktbytes[49])) # 0-20
@@ -110,6 +113,66 @@ def printpacket(pktbytes):
     
     #72 and 80 are used for reading the version somehow
 
+#def kaitaipacket(rxPacket):
+  #xstruct = xiegug90head.Xiegug90head.from_bytes(rxPacket)
+  #print(type(xstruct))
+  #print(xstruct)
+  #print(vars(xstruct))
+
+
+def deconstructPacket(rxPacket):
+  #format = Struct(
+     #"signature" / Const(b"\xaa\x55"),
+     #Padding(1)
+     #"freq1" / Int32ub,
+     #"height" / Int8ub,
+     #"pixels" / Array(this.width * this.height, Byte),
+  #)
+  pkt = xiegug90head.xiegug90head.parse(rxPacket)
+  print(pkt)
+  print("freq: " + str(pkt['freq1']))  
+  
+
+def reconstructPacket(rxPacket):
+  myvals = {}
+  myvals['freq1'] = 24934000
+  
+  parsedpkt = xiegug90head.xiegug90head.parse(rxPacket)
+  
+  mybytes  = xiegug90head.xiegug90head.build(parsedpkt)
+  #format = Struct(
+     #"signature" / Const(b"\xaa\x55"),
+     #Padding(1)
+     #"freq1" / Int32ub,
+     #"height" / Int8ub,
+     #"pixels" / Array(this.width * this.height, Byte),
+  #)
+
+  
+  print("ct ",end="")
+  for idx in range(len(rxPacket)):
+    print(" {:>2}".format(idx%100), end="")
+  print()
+  
+  print("rx ",end="")
+  for idx in range(len(rxPacket)):
+    
+    print(" {:02x}".format(rxPacket[idx]), end="")
+  print()
+  
+  print("rb ",end="")
+  for idx in range(len(mybytes)):
+    print(" {:02x}".format(mybytes[idx]), end="")
+  print()
+  
+  print("df ",end="")
+  for idx in range(len(rxPacket)):
+    if mybytes[idx] != rxPacket[idx]:
+      print(" !!", end="")
+    else:
+      print("   ", end="")
+  print()
+
 
 def logFrom(ser):
   iteration = 0
@@ -122,7 +185,11 @@ def logFrom(ser):
       rxPacket = readPacket(ser,100)
       if(rxPacket):
         print("Got a packet: ")
-        printpacket(rxPacket)
+        #printpacket(rxPacket)
+        #kaitaipacket(rxPacket)
+        deconstructPacket(rxPacket)
+        reconstructPacket(rxPacket)
+        
         print()
       
         
