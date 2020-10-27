@@ -130,16 +130,19 @@ def deconstructPacket(rxPacket):
   #)
   pkt = xiegug90head.xiegug90head.parse(rxPacket)
   print(pkt)
-  print("freq: " + str(pkt['freq1']))  
+  
   
 
 def reconstructPacket(rxPacket):
-  myvals = {}
-  myvals['freq1'] = 24934000
   
   parsedpkt = xiegug90head.xiegug90head.parse(rxPacket)
   
-  mybytes  = xiegug90head.xiegug90head.build(parsedpkt)
+  myvals = {}
+  myvals['freq1'] = 1422500
+  
+  #mybytes  = xiegug90head.xiegug90head.build(parsedpkt)
+  mypkt = xiegug90head.xiegug90head
+  mybytes  = mypkt.build({'pad2b':0x55, 'unknown2':2, 'ctrl3.tx_disable':False, 'checksum':0x806ba4ae})
   #format = Struct(
      #"signature" / Const(b"\xaa\x55"),
      #Padding(1)
@@ -157,12 +160,12 @@ def reconstructPacket(rxPacket):
   print("rx ",end="")
   for idx in range(len(rxPacket)):
     
-    print(" {:02x}".format(rxPacket[idx]), end="")
+    print("{:02x}".format(rxPacket[idx]), end="")
   print()
   
   print("rb ",end="")
   for idx in range(len(mybytes)):
-    print(" {:02x}".format(mybytes[idx]), end="")
+    print("{:02x}".format(mybytes[idx]), end="")
   print()
   
   print("df ",end="")
@@ -172,6 +175,9 @@ def reconstructPacket(rxPacket):
     else:
       print("   ", end="")
   print()
+
+  print("freq: " + str(parsedpkt['freq1']))
+  print("freq: " + str(xiegug90head.xiegug90head.parse(mybytes)['freq1']))
 
 
 def logFrom(ser):
@@ -187,7 +193,7 @@ def logFrom(ser):
         print("Got a packet: ")
         #printpacket(rxPacket)
         #kaitaipacket(rxPacket)
-        deconstructPacket(rxPacket)
+        #deconstructPacket(rxPacket)
         reconstructPacket(rxPacket)
         
         print()
