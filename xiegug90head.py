@@ -33,6 +33,7 @@ def xiegug90head__gain_modes(subcon):
 xiegug90head = Struct(
 	'header' / Default(Array(2, Byte), [0x55, 0xaa]),
 	'pad1' / Default(Int16ub, 0),
+	
 	'freq1' / Default(Int32ul, 14225000),
 	'att_mode' / Default(xiegug90head__att_modes(Int8ub), 0),
 	'modulation' / Default(xiegug90head__modulations(Int8ub), 1),
@@ -44,6 +45,7 @@ xiegug90head = Struct(
 	'pad3' / Default(Array(5, Byte), [0x00, 0x00, 0x00, 0x00, 0x00]),
 	#byte 19
 	'fft_scale' / Default(Int8ub, 1), #1=auto
+	
 	'freq2' / Default(Int32ul, 7175000),
 	'att_mode2' / Default(xiegug90head__att_modes(Int8ub), 0),
 	'modulation2' / Default(xiegug90head__modulations(Int8ub), 0),
@@ -54,6 +56,7 @@ xiegug90head = Struct(
 	#30
 	'pad5' / Default(Array(5, Byte), [0x00,0x00,0x00,0x00,0x00]),
 	'fft_scale2' / Default(Int8ub, 1), #1=auto
+	
 	'ctrl1' / Default( BitStruct(
           'transmit' / Flag, #0x80
           'mem_en' / Flag,
@@ -144,7 +147,7 @@ xiegug90head = Struct(
           'ritval_high' / BitsInteger(2),
         ), {'ritval_low':0, 'ritval_high':0}),
         'unknown5' / Default(Array(6, Byte), [0xff, 0xff, 0x00, 0x00, 0x00, 0x00]),
-        'checksum' / Default(Int32ub,0),
+        'checksum' / Default(Int32ul,0),
         
         #computed
 	'filter_low' / Computed( (100 + (this.filter_low_raw * 25))),

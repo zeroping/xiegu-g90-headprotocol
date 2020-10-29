@@ -16,9 +16,18 @@ https://xiegug90.groups.io/g/TechnicalAnalysis/
 8. IN_R
 9. IN_L
 
-## Head to Base decoding/printing script
+
+## RS232 protocol
+These are some python scripts to help decode the 3.3V RS-232 packets sent between the head and the base. They use [the python Construct library](https://construct.readthedocs.io/en/latest/), which you may need to install with something like `pip install construct`. The head to body protocol is defined in xiegug90head.py.
+
+## Base to Head decoding/printing script (log_body.py)
+This script decodes some of the bytes from the body to the head. It's a WiP, but decodes some of the flags, the decoded CW text, and the FFT data.
+
+## Head to Base decoding/printing script (log_head.py)
 I have a python script, log_head.py, that decodes the messages from the detachable head to the unit base. It uses a 3.3V RS-232 adapter, with GND connected, and the head unit's serial output connected to RS-232's adapter's input.
 
+## Head to Base control script (generate_head_data.py)
+This script generates some packets to show that we can control the body using the same protocol as the head. It even generates correct CRC values!
 
 
 

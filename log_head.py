@@ -9,6 +9,8 @@ import time
 import xiegug90head
 #from construct import Int16ub, Int16ul, Int16bl, Struct
 #from construct import *
+import binascii
+import zlib
 
 def readPacket(ser, readtime=1):
   #looks for a 0x55 followed by a 0xaa to get synced, then expects 94 more bytes afterwards
@@ -130,54 +132,6 @@ def deconstructPacket(rxPacket):
   #)
   pkt = xiegug90head.xiegug90head.parse(rxPacket)
   print(pkt)
-  
-  
-
-def reconstructPacket(rxPacket):
-  
-  parsedpkt = xiegug90head.xiegug90head.parse(rxPacket)
-  
-  myvals = {}
-  myvals['freq1'] = 1422500
-  
-  #mybytes  = xiegug90head.xiegug90head.build(parsedpkt)
-  mypkt = xiegug90head.xiegug90head
-  mybytes  = mypkt.build({'pad2b':0x55, 'unknown2':2, 'ctrl3.tx_disable':False, 'checksum':0x806ba4ae})
-  #format = Struct(
-     #"signature" / Const(b"\xaa\x55"),
-     #Padding(1)
-     #"freq1" / Int32ub,
-     #"height" / Int8ub,
-     #"pixels" / Array(this.width * this.height, Byte),
-  #)
-
-  
-  print("ct ",end="")
-  for idx in range(len(rxPacket)):
-    print(" {:>2}".format(idx%100), end="")
-  print()
-  
-  print("rx ",end="")
-  for idx in range(len(rxPacket)):
-    
-    print("{:02x}".format(rxPacket[idx]), end="")
-  print()
-  
-  print("rb ",end="")
-  for idx in range(len(mybytes)):
-    print("{:02x}".format(mybytes[idx]), end="")
-  print()
-  
-  print("df ",end="")
-  for idx in range(len(rxPacket)):
-    if mybytes[idx] != rxPacket[idx]:
-      print(" !!", end="")
-    else:
-      print("   ", end="")
-  print()
-
-  print("freq: " + str(parsedpkt['freq1']))
-  print("freq: " + str(xiegug90head.xiegug90head.parse(mybytes)['freq1']))
 
 
 def logFrom(ser):
@@ -185,19 +139,19 @@ def logFrom(ser):
   ser.timeout = 0.1
 
   try:
+    lastPacket = None
     while(1):
       
 
       rxPacket = readPacket(ser,100)
-      if(rxPacket):
-        print("Got a packet: ")
-        #printpacket(rxPacket)
-        #kaitaipacket(rxPacket)
-        #deconstructPacket(rxPacket)
-        reconstructPacket(rxPacket)
+      if(lastPacket and rxPacket and lastPacket != rxPacket):
+          print("Got a new packet: ")
+          #printpacket(rxPacket)
+          deconstructPacket(rxPacket)
+          
+          print()
+      lastPacket = rxPacket
         
-        print()
-      
         
   except KeyboardInterrupt:
     print("got interrupt, exiting")
